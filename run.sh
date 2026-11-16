@@ -3,6 +3,7 @@
 #   ./run.sh                    # усі теки data/pr-*
 #   ./run.sh pr-103 pr-104      # вибрані PR
 # Без --bare: --bare пропускає CLAUDE.md, скіли, .claude/agents і не бере вхід підпискою — працівника не було б.
+# --allowedTools потрібен і тут: у теці без прийнятого діалогу довіри Claude Code ігнорує allow з settings.json (deny діє).
 set -uo pipefail
 cd "$(dirname "$0")"
 export MSYS_NO_PATHCONV=1   # Git Bash на Windows не перетворює «/pr-review» на шлях
@@ -17,7 +18,7 @@ for pr in "${PRS[@]}"; do
     --permission-mode dontAsk \
     --allowedTools "$ALLOWED" \
     --max-turns 40 \
-    --output-format json > "out/runs/${stamp}-${pr}.json" 2> "out/runs/${stamp}-${pr}.stderr.txt"
+    --output-format json < /dev/null > "out/runs/${stamp}-${pr}.json" 2> "out/runs/${stamp}-${pr}.stderr.txt"
   code=$?
   node scripts/validate-report.mjs "data/${pr}"; v=$?
   echo "${pr}: claude код ${code}, validate-report код ${v}; журнал out/runs/${stamp}-${pr}.json, звіт out/${pr}.md"

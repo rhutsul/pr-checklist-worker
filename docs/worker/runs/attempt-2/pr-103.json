@@ -1,0 +1,43 @@
+{
+  "pr": "pr-103",
+  "type": "Реалізація",
+  "verdict": "треба виправити",
+  "status": "НЕ ПЕРЕВІРЕНО",
+  "generated_at": "2026-11-16T12:00:00+02:00",
+  "findings": [
+    {
+      "id": "F1",
+      "rule": "AC_TEST",
+      "severity": "блокує",
+      "file": "data/pr-103/pr.md",
+      "line": 21,
+      "message": "AC-DEMO-03 «реалізовано», але немає тесту, назва якого починається з «AC-DEMO-03:»",
+      "evidence": "тестів з цим ID: 0",
+      "fix": "Перейменувати тест у tests/bookings.test.ts:21 на it(\"AC-DEMO-03: …\") (зараз «books the room for the whole day» без AC ID), або позначити AC-DEMO-03 «відкладено (причина)» і в PR, і в матриці.",
+      "source": "script",
+      "verified": "підтверджено"
+    },
+    {
+      "id": "F2",
+      "rule": "THEN_VERBATIM",
+      "severity": "блокує",
+      "file": "data/pr-103/tree/tests/e2e/bookings.spec.ts",
+      "line": 22,
+      "message": "«Тоді» для AC-DEMO-02 не дослівно з AC (data/pr-103/tree/requirements/01-room-booking.md:10)",
+      "evidence": "у тесті: «the employee sees an error that the room is already booked» · в AC: «the employee sees \"The room is already booked for this time: 10:00–11:00\"»",
+      "fix": "Замінити назву кроку на дослівний «Then» з AC: 'Тоді: the employee sees \"The room is already booked for this time: 10:00–11:00\"'.",
+      "source": "script",
+      "verified": "підтверджено"
+    }
+  ],
+  "rejected": [],
+  "verifier": {
+    "verdict": "ВЕРДИКТ: НЕ ПЕРЕВІРЕНО",
+    "summary": "Обидві знахідки (F1, F2) підтверджено за сирими файлами, пропущених не знайдено. Загальний вердикт «НЕ ПЕРЕВІРЕНО» — перевіряльнику заборонено запуск node scripts/check-pr.mjs, тож він не звірив чернетку з виводом скрипта сам."
+  },
+  "not_checked": [
+    "Перевіряльник не зміг незалежно запустити node scripts/check-pr.mjs data/pr-103 (Bash заборонено в його середовищі) — звірка «вивід скрипта ↔ чернетка» спирається на оркестратора й validate-report.mjs.",
+    "Скрипт не бачить diff по рядках docs/conformance.md."
+  ],
+  "instructions_in_data": []
+}

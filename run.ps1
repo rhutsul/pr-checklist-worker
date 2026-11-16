@@ -12,13 +12,15 @@ New-Item -ItemType Directory -Force -Path "out\runs" | Out-Null
 if ($Pr.Count -eq 0) { $Pr = Get-ChildItem -Directory -Path "data" -Filter "pr-*" | ForEach-Object { $_.Name } }
 
 # --permission-mode dontAsk: усе, що не дозволено явно, — відмова (без людини нема кому натиснути «так»).
-# --allowedTools: те саме, що allow у .claude/settings.json; deny звідти діє й тут.
+# --allowedTools: те саме, що allow у .claude/settings.json. Потрібне ще й тут: у теці без прийнятого діалогу довіри
+# Claude Code ігнорує allow з settings.json (deny діє завжди).
 $allowed = "Skill(pr-review),Agent(pr-review-verifier),Bash(node scripts/check-pr.mjs *),Bash(node scripts/validate-report.mjs *),PowerShell(node scripts/check-pr.mjs *),PowerShell(node scripts/validate-report.mjs *),Read(/data/**),Read(/references/**),Read(/scripts/**),Read(/out/**),Grep,Glob,Edit(/out/**)"
 $worst = 0
 foreach ($p in $Pr) {
   $stamp = Get-Date -Format "yyyy-MM-ddTHH-mm-ss"
   $log = "out\runs\$stamp-$p.json"
-  & $ClaudeBin -p "/pr-review data/$p" --permission-mode dontAsk --allowedTools $allowed --max-turns 40 --output-format json 2> "outuns$stamp-$p.stderr.txt" |
+  $err = "out\runs\$stamp-$p.stderr.txt"
+  $null | & $ClaudeBin -p "/pr-review data/$p" --permission-mode dontAsk --allowedTools $allowed --max-turns 40 --output-format json 2> $err |
     Out-File -FilePath $log -Encoding utf8
   $code = $LASTEXITCODE
   & node scripts/validate-report.mjs "data/$p"
