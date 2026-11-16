@@ -18,7 +18,7 @@ $worst = 0
 foreach ($p in $Pr) {
   $stamp = Get-Date -Format "yyyy-MM-ddTHH-mm-ss"
   $log = "out\runs\$stamp-$p.json"
-  & $ClaudeBin -p "/pr-review data/$p" --permission-mode dontAsk --allowedTools $allowed --max-turns 40 --output-format json |
+  & $ClaudeBin -p "/pr-review data/$p" --permission-mode dontAsk --allowedTools $allowed --max-turns 40 --output-format json 2> "outuns$stamp-$p.stderr.txt" |
     Out-File -FilePath $log -Encoding utf8
   $code = $LASTEXITCODE
   & node scripts/validate-report.mjs "data/$p"

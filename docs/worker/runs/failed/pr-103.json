@@ -1,0 +1,19 @@
+{
+  "pr": "pr-103",
+  "type": "Реалізація",
+  "verdict": "треба виправити",
+  "status": "НЕ ПЕРЕВІРЕНО",
+  "generated_at": "2026-11-16T00:00:00Z",
+  "findings": [],
+  "rejected": [],
+  "verifier": {
+    "verdict": "НЕ ЗАПУСКАВСЯ",
+    "summary": "Перевіряльника не викликано: немає знахідок скрипта, бо scripts/check-pr.mjs не вдалося запустити (дозволи сесії відмовили в Bash і PowerShell)."
+  },
+  "not_checked": [
+    "Усі правила чекліста (PR_TYPE, SCOPE, AC_STATUS, AC_TEST, AC_MATRIX, THEN_VERBATIM, SECRET, EMAIL): node scripts/check-pr.mjs data/pr-103 не запущено — дозволи сесії відмовили у виконанні команд.",
+    "scripts/validate-report.mjs не запущено з тієї ж причини — звіт не провалідовано кодом.",
+    "Підказка для людини (не знахідка): data/pr-103/pr.md:19-21 позначає AC-DEMO-01…03 «реалізовано», а data/pr-103/pr.md:27 згадує оновлення рядків матриці лише для AC-DEMO-01 і AC-DEMO-02 — перевірити AC_MATRIX для AC-DEMO-03 скриптом."
+  ],
+  "instructions_in_data": []
+}

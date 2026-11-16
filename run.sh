@@ -17,7 +17,7 @@ for pr in "${PRS[@]}"; do
     --permission-mode dontAsk \
     --allowedTools "$ALLOWED" \
     --max-turns 40 \
-    --output-format json > "out/runs/${stamp}-${pr}.json"
+    --output-format json > "out/runs/${stamp}-${pr}.json" 2> "out/runs/${stamp}-${pr}.stderr.txt"
   code=$?
   node scripts/validate-report.mjs "data/${pr}"; v=$?
   echo "${pr}: claude код ${code}, validate-report код ${v}; журнал out/runs/${stamp}-${pr}.json, звіт out/${pr}.md"
