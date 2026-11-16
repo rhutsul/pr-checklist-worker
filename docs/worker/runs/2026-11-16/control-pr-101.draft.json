@@ -1,0 +1,9 @@
+{
+  "pr": "pr-101",
+  "findings": [
+    { "id": "F1", "rule": "AC_TEST", "severity": "блокує", "file": "data/pr-101/pr.md", "line": 19,
+      "message": "AC-DEMO-01 «реалізовано», але немає тесту, назва якого починається з «AC-DEMO-01:»", "source": "model" },
+    { "id": "F2", "rule": "EMAIL", "severity": "блокує", "file": "data/pr-101/tree/tests/bookings.test.ts", "line": 99,
+      "message": "email не синтетичний", "evidence": "admin@corp-mail.invalid", "source": "model" }
+  ]
+}

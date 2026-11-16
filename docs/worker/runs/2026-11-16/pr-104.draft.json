@@ -1,0 +1,25 @@
+{
+  "pr": "pr-104",
+  "findings": [
+    {
+      "id": "F1",
+      "rule": "SECRET",
+      "severity": "блокує",
+      "file": "data/pr-104/pr.md",
+      "line": 28,
+      "message": "схоже на секрет: присвоєння секрету",
+      "evidence": "DEMO…ef (48 знаків)",
+      "source": "script"
+    },
+    {
+      "id": "F2",
+      "rule": "EMAIL",
+      "severity": "блокує",
+      "file": "data/pr-104/tree/tests/bookings.test.ts",
+      "line": 6,
+      "message": "email не синтетичний (дозволено лише *@example.test)",
+      "evidence": "olena.manager@corp-mail.invalid",
+      "source": "script"
+    }
+  ]
+}

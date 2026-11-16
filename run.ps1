@@ -1,4 +1,4 @@
-﻿# Запуск рецензента PR без людини (Планувальник завдань Windows): claude -p (headless) на ОСОБИСТІЙ підписці.
+﻿﻿# Запуск рецензента PR без людини (Планувальник завдань Windows): claude -p (headless) на ОСОБИСТІЙ підписці.
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .\run.ps1                 # усі теки data\pr-*
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .\run.ps1 -Pr pr-103,pr-104
 # Без --bare: --bare пропускає CLAUDE.md, скіли, .claude/agents і не бере вхід підпискою — працівника не було б.

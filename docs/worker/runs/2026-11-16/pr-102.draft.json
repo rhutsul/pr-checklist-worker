@@ -1,0 +1,15 @@
+{
+  "pr": "pr-102",
+  "findings": [
+    {
+      "id": "F1",
+      "rule": "SCOPE",
+      "severity": "блокує",
+      "file": "data/pr-102/files.txt",
+      "line": 7,
+      "message": "PR типу «Реалізація» не може змінювати requirements/01-room-booking.md (src/, supabase/, tests/, рядки docs/conformance.md, docs/decisions/, docs/img/, docs/qa/, impl-<зріз>; без requirements/ і openspec/specs/)",
+      "evidence": "M requirements/01-room-booking.md",
+      "source": "script"
+    }
+  ]
+}

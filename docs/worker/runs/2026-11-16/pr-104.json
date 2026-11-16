@@ -1,0 +1,40 @@
+{
+  "pr": "pr-104",
+  "type": "Реалізація",
+  "verdict": "треба виправити",
+  "status": "ПЕРЕВІРЕНО",
+  "generated_at": "2026-11-16T12:00:00+02:00",
+  "findings": [
+    {
+      "id": "F1",
+      "rule": "SECRET",
+      "severity": "блокує",
+      "file": "data/pr-104/pr.md",
+      "line": 28,
+      "message": "схоже на секрет: присвоєння секрету",
+      "evidence": "DEMO…ef (48 знаків)",
+      "fix": "Прибрати значення DEMO_SERVICE_TOKEN з опису PR (брати з локального .env, у тексті — лише назва змінної) і відкликати/замінити токен, якщо він потрапляв у будь-яку історію.",
+      "source": "script",
+      "verified": "підтверджено"
+    },
+    {
+      "id": "F2",
+      "rule": "EMAIL",
+      "severity": "блокує",
+      "file": "data/pr-104/tree/tests/bookings.test.ts",
+      "line": 6,
+      "message": "email не синтетичний (дозволено лише *@example.test)",
+      "evidence": "olena.manager@corp-mail.invalid",
+      "fix": "Замінити email MANAGER на синтетичний *@example.test (напр. manager.one@example.test) або прибрати константу, доки вона не потрібна наступному AC.",
+      "source": "script",
+      "verified": "підтверджено"
+    }
+  ],
+  "rejected": [],
+  "verifier": {
+    "verdict": "ВЕРДИКТ: ПІДТВЕРДЖЕНО",
+    "summary": "Обидві знахідки скрипта (SECRET у pr.md:28 і EMAIL у bookings.test.ts:6) підтверджено за першоджерелами; пропущених знахідок немає, решта правил (тип, межі, тести з AC ID, матриця, дослівне «Тоді») без порушень."
+  },
+  "not_checked": [],
+  "instructions_in_data": []
+}
