@@ -1,0 +1,7 @@
+# Змінені файли PR: статус (A — додано, M — змінено, D — видалено) і шлях у репо
+A src/app/bookings/actions.ts
+A tests/bookings.test.ts
+A tests/e2e/bookings.spec.ts
+M docs/conformance.md
+M openspec/changes/impl-room-booking/tasks.md
+M requirements/01-room-booking.md

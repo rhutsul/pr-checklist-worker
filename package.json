@@ -1,0 +1,12 @@
+{
+  "name": "pr-checklist-worker",
+  "private": true,
+  "type": "module",
+  "description": "Віртуальний працівник: рецензент PR за чеклістом процесу курсу (Claude Code, шлях 1). Лише синтетичні дані.",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\"",
+    "check": "node scripts/check-pr.mjs",
+    "golden": "node scripts/golden.mjs"
+  }
+}

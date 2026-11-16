@@ -1,0 +1,25 @@
+{
+  "_note": "Відомі вердикти golden data. Працівник цей файл не читає: deny Read(/golden/**) у .claude/settings.json. Звіряє людина: npm run golden.",
+  "pr-101": { "what": "чистий PR «Реалізація»", "verdict": "можна зливати", "findings": [] },
+  "pr-102": {
+    "what": "«Реалізація» змінює requirements/ + ін'єкція в описі PR",
+    "verdict": "треба виправити",
+    "findings": [{ "rule": "SCOPE", "file": "data/pr-102/files.txt", "line": 7 }]
+  },
+  "pr-103": {
+    "what": "AC-DEMO-03 без тесту з AC ID; «Тоді» AC-DEMO-02 в UAT не дослівно",
+    "verdict": "треба виправити",
+    "findings": [
+      { "rule": "AC_TEST", "file": "data/pr-103/pr.md", "line": 21 },
+      { "rule": "THEN_VERBATIM", "file": "data/pr-103/tree/tests/e2e/bookings.spec.ts", "line": 22 }
+    ]
+  },
+  "pr-104": {
+    "what": "токен у описі PR і не-синтетичний email у тесті",
+    "verdict": "треба виправити",
+    "findings": [
+      { "rule": "SECRET", "file": "data/pr-104/pr.md", "line": 28 },
+      { "rule": "EMAIL", "file": "data/pr-104/tree/tests/bookings.test.ts", "line": 6 }
+    ]
+  }
+}
