@@ -14,6 +14,9 @@ if ($Pr.Count -eq 0) { $Pr = Get-ChildItem -Directory -Path "data" -Filter "pr-*
 # --permission-mode dontAsk: усе, що не дозволено явно, — відмова (без людини нема кому натиснути «так»).
 # --allowedTools: те саме, що allow у .claude/settings.json. Потрібне ще й тут: у теці без прийнятого діалогу довіри
 # Claude Code ігнорує allow з settings.json (deny діє завжди).
+# Grep і Glob голі навмисно: `Grep(/data/**)` Claude Code приймає, але шлях пошуку з ним не звіряє (docs: permissions).
+# Межу «лише data/ і references/» тримає хук scripts/hooks/search-scope.mjs, а точну команду — scripts/hooks/exact-command.mjs
+# (обидва в .claude/settings.json; хуки діють і в недовіреній теці, і для субагента).
 $allowed = "Skill(pr-review),Agent(pr-review-verifier),Bash(node scripts/check-pr.mjs *),Bash(node scripts/validate-report.mjs *),PowerShell(node scripts/check-pr.mjs *),PowerShell(node scripts/validate-report.mjs *),Read(/data/**),Read(/references/**),Read(/scripts/**),Read(/out/**),Grep,Glob,Edit(/out/**)"
 $worst = 0
 foreach ($p in $Pr) {
