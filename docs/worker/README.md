@@ -30,7 +30,7 @@
 | Роль | `AGENTS.md`, `description` у `.claude/skills/pr-review/SKILL.md` |
 | Інструменти | `scripts/check-pr.mjs` (правила, таблиця + `###JSON###`, код виходу 0 / 1 / 2), `scripts/validate-report.mjs` (перевірка звіту), Read / Grep / Glob, запис лише в `out/` |
 | Правила | `scripts/lib/checks.mjs` (код), `references/rules.md` (пояснення й «відомі граблі») |
-| Межі | `.claude/settings.json` (allow / deny) + `--permission-mode dontAsk` + `--allowedTools` у `run.ps1` / `run.sh` |
+| Межі | `.claude/settings.json` (allow / deny + хуки `PreToolUse` у `scripts/hooks/`) + `--permission-mode dontAsk` + `--allowedTools` у `run.ps1` / `run.sh` |
 | Перевіряльник | `.claude/agents/pr-review-verifier.md` — субагент у чистому контексті, лише читання |
 | Пам'ять | `references/rules.md`, звіти в `out/` |
 | Бюджет | `--max-turns 40` оркестратора, `maxTurns: 15` перевіряльника, ліміти підписки |
@@ -56,7 +56,41 @@
   `-p "/pr-review data/<pr>" --permission-mode dontAsk --allowedTools "…" --max-turns 40 --output-format json`.
 - **Дозволено:** `Skill(pr-review)`, `Agent(pr-review-verifier)`, рівно `node scripts/check-pr.mjs *` і
   `node scripts/validate-report.mjs *` (Bash і PowerShell), `Read` лише `data/`, `references/`, `scripts/`, `out/`,
-  `Grep`, `Glob`, запис лише `Edit(/out/**)`.
+  `Grep` і `Glob` лише в `data/` і `references/` (хук, див. нижче), запис лише `Edit(/out/**)`.
+- **Хуки `PreToolUse` — межу тримає код, а не інструкція** (порада викладача 18.11). Обидва в `.claude/settings.json`,
+  код у `scripts/hooks/`, тести в `npm test`. Хук лише відхиляє; пропущене далі вирішують allow / deny.
+  - `exact-command.mjs` (Bash, PowerShell) пропускає рівно `node scripts/check-pr.mjs data/<pr>` і
+    `node scripts/validate-report.mjs data/<pr>`. Склеєну команду (`cd`, `&&`, `;`, `|`, `echo $?` /
+    `$LASTEXITCODE`, абсолютний шлях, перенаправлення, кілька рядків) відхиляє і пояснює моделі, що саме не так і як
+    правильно. Раніше це трималося лише текстом у скілі й у субагенті, і модель двічі його порушила (див. «Що
+    зламалось»).
+  - `search-scope.mjs` (Grep, Glob) пропускає пошук лише з `path` у `data/` чи `references/`. Glob без `path` можна,
+    якщо шаблон починається з `data/` чи `references/`. Grep без `path`, `golden/`, `tests/`, `..` чи абсолютний шлях
+    поза репо — відмова з поясненням.
+  - **Чому хук, а не `Grep(/data/**)` в allow.** Викладач радив замінити голі `Grep` і `Glob` на правила зі шляхами.
+    Але в документації Claude Code ([permissions](https://code.claude.com/docs/en/permissions)) сказано: правило
+    `Grep(docs/**)` приймається, проте шлях пошуку з ним не звіряється, а натомість треба писати `Read(...)`. Тобто
+    `Grep(/data/**)` виглядало б як межа, але нічого б не тримало. Тому в allow (і в `--allowedTools` у `run.*`)
+    `Grep`, `Glob` лишились голими: це дозвіл на інструмент. Межу за шляхом тримає хук, а `deny Read(/golden/**)`,
+    `Read(/tests/**)` і `Read(/docs/worker/runs/**)` — другий шар.
+  - Хуки з `.claude/settings.json` діють і в недовіреній теці, де `claude -p` ігнорує allow (документація
+    [settings](https://code.claude.com/docs/en/settings)). Діють вони й на виклики субагента-перевіряльника
+    ([hooks](https://code.claude.com/docs/en/hooks)). Перевіряльнику вистачає меж: правила він читає через
+    `Read references/rules.md`, тести з AC ID шукає `Grep` у `data/<pr>/tree`, скрипт запускає точною командою.
+  - **Проба хуків без моделі** (`docs/worker/runs/2026-11-18/hook-probe-local.json`). Хукам подано той самий JSON, що
+    дає Claude Code, з трьома справжніми відхиленими командами з журналів 16.11 (`cd "…" && … ; echo "EXIT=$?"`,
+    `…; "EXIT=$LASTEXITCODE"`, `node "<абсолютний шлях>" …; echo`). Хук `deny` усі три з поясненням. Також `deny`
+    `| head`, `git push`, Grep без `path` чи в `golden/`, Glob `**/*.json`. Пропущено точні команди, Grep у
+    `data/pr-103/tree` і Glob `references/*.md`.
+  - **Проба хуків у `claude -p`** 18.11 (`docs/worker/runs/2026-11-18/boundary-probe-hooks-sandbox.json`). Як і 16.11,
+    запуск ішов у копії репо без `AGENTS.md` і `CLAUDE.md`, з тими самими `settings.json` і `--allowedTools`. Модель
+    отримала 9 дій. Відхилено 6, і всі шість видно в `permission_denials` журналу з причиною від хука:
+    `cd … && …; echo "EXIT=$?"`, `… | head -5`, абсолютний шлях до скрипта, Grep без `path`, Grep у `golden/`, Glob
+    `**/*.json`. Дозволено 3: точна `node scripts/check-pr.mjs data/pr-103`, Grep у `data/pr-103/tree` і Glob
+    `references/*.md`. Отже, Claude Code на цій машині (Windows, Git Bash, v2.1.296) викликає хуки в недовіреній теці.
+  - **Звичайний запуск з хуками** `./run.sh pr-103` 18.11 (`…/2026-11-18/2026-11-18T10-16-06-pr-103-run.json`, звіти
+    `pr-103.*`). Хуки не завадили роботі: відмов 0, перевіряльник «ПІДТВЕРДЖЕНО», `validate-report` код 0,
+    `npm run golden` для pr-103 ✓.
 - **Заборонено (deny):** `.env*`; читання `golden/`, `tests/`, `docs/worker/runs/` (там відомі відповіді — інакше
   перевірка не незалежна); запис у `data/`, `scripts/`, `references/`, `golden/`, `tests/`, `docs/`, `.claude/`,
   `.github/`, `AGENTS.md`, `CLAUDE.md`, `run.*`, `package.json`; `WebFetch`, `WebSearch`, `curl`, `wget`,
@@ -87,7 +121,8 @@
 ## Golden data
 
 Відомі відповіді лежать у `golden/expected.json`. Працівник їх не бачить (deny `Read(/golden/**)`). Звіряє людина:
-`npm run golden`. Ті самі набори без моделі перевіряє `npm test` (7 тестів `node:test`, усі зелені).
+`npm run golden`. Ті самі набори без моделі перевіряє `npm test` (7 тестів правил + 39 тестів хуків `node:test`,
+усі 46 зелені).
 
 | Набір | Що закладено | Очікуваний вердикт | Результат працівника (`claude -p`, 16.11.2026) |
 |---|---|---|---|
@@ -127,6 +162,8 @@
 | проба меж (пісочниця / з `AGENTS.md`) | 11 / 2 | 0.21 / 0.16 | — | 8 / 0 |
 | невдалий перший запуск pr-103 | 7 | 0.29 | — | 2 |
 | другий запуск pr-103 | 16 | 0.59 | — | 1 |
+| 18.11: проба хуків (пісочниця) | 10 | 0.25 | 56 с | 6 (хуки) |
+| 18.11: `./run.sh pr-103` з хуками | 11 | 0.51 | 85 с | 0 |
 
 - **Ліміти:** особиста підписка Claude. Усього за сесію — 9 запусків `claude -p` на ≈ $3.3 за оцінкою. Ліміту не
   досягли. Залишок ліміту підписки CLI не показує — не виміряно.
@@ -154,8 +191,13 @@
      `docs/conformance.md` від зміни рядків таблиці. Треба додати вхід `diff.patch` і правило на рядки.
    - «Тоді» шукається лише в `test.step("Тоді: …")` і в коментарі `// Тоді: …`. Анотації Playwright (`annotation`) і
      `it.each` не розбираються.
-   - Інструкція «команда без склеювання» живе в промпті. Сильніше було б зробити хук `PreToolUse`, який відхиляє
-     склеєну команду з поясненням, або обгортку `run-check <pr>` без аргументів-шляхів.
+   - ~~Інструкція «команда без склеювання» живе в промпті~~. **Зроблено 18.11** за порадою викладача: хук
+     `scripts/hooks/exact-command.mjs` відхиляє склеєну команду кодом. Голі `Grep` і `Glob` тепер обмежує хук
+     `search-scope.mjs` (чому не правило `Grep(/data/**)` — див. «Межі»).
+5. **Перевірено після змін 18.11:** проба меж у `claude -p` (6 відмов хуків у `permission_denials`, з поясненням) і
+   `./run.sh pr-103` з хуками (0 відмов, golden ✓). Див. «Межі». **Не перевірено:** pr-101, pr-102 і pr-104 з хуками
+   не перезапускались (людина погодила два запуски). `run.ps1` досі не запускався. Журнали `claude -p` не зберігають
+   самих викликів Grep і Glob, тож видно лише відмови, а не всі пошуки.
    - Розклад: працівник поки запускається вручну через `run.*`. Для розкладу потрібне завдання Планувальника (команда —
      у кореневому `README.md`); у GitHub Actions — `anthropics/claude-code-action` з `claude_code_oauth_token` у Secrets.
      У цьому репо його не налаштовано.

@@ -1,0 +1,42 @@
+{
+  "pr": "pr-103",
+  "type": "Реалізація",
+  "verdict": "треба виправити",
+  "status": "ПЕРЕВІРЕНО",
+  "generated_at": "2026-11-18T12:00:00+02:00",
+  "findings": [
+    {
+      "id": "F1",
+      "rule": "AC_TEST",
+      "severity": "блокує",
+      "file": "data/pr-103/pr.md",
+      "line": 21,
+      "message": "AC-DEMO-03 «реалізовано», але немає тесту, назва якого починається з «AC-DEMO-03:»",
+      "evidence": "тестів з цим ID: 0",
+      "fix": "Перейменувати тест «books the room for the whole day» у tests/bookings.test.ts на «AC-DEMO-03: …» (або додати тест з цим ID), без .skip.",
+      "source": "script",
+      "verified": "підтверджено"
+    },
+    {
+      "id": "F2",
+      "rule": "THEN_VERBATIM",
+      "severity": "блокує",
+      "file": "data/pr-103/tree/tests/e2e/bookings.spec.ts",
+      "line": 22,
+      "message": "«Тоді» для AC-DEMO-02 не дослівно з AC (data/pr-103/tree/requirements/01-room-booking.md:10)",
+      "evidence": "у тесті: «the employee sees an error that the room is already booked» · в AC: «the employee sees \"The room is already booked for this time: 10:00–11:00\"»",
+      "fix": "Замінити назву кроку на дослівний Then з AC: «Тоді: the employee sees \"The room is already booked for this time: 10:00–11:00\"».",
+      "source": "script",
+      "verified": "підтверджено"
+    }
+  ],
+  "rejected": [],
+  "verifier": {
+    "verdict": "ВЕРДИКТ: ПІДТВЕРДЖЕНО",
+    "summary": "Обидві знахідки скрипта (F1, F2) підтверджено за першоджерелами; пропущених порушень не знайдено (межі змін, матриця, «Тоді» для AC-DEMO-01, email, секрети — у порядку)."
+  },
+  "not_checked": [
+    "Чи рядок AC-DEMO-03 у docs/conformance.md додано саме в цьому PR — diff по рядках недоступний; при цьому pr.md:27 згадує оновлення лише рядків AC-DEMO-01 і AC-DEMO-02 (невідповідність в описі PR, не знахідка)."
+  ],
+  "instructions_in_data": []
+}
